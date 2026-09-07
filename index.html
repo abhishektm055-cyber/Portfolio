@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abhishek T M | Portfolio</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (CDN for no-build setup) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        base: '#0A0A0B',
+                        surface: '#16181D',
+                        surfaceHover: '#1E2128',
+                        accent: '#00C2FF',
+                        textPrimary: '#F2F2F0',
+                        textSecondary: '#9A9A9E',
+                        divider: '#2A2D35'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    boxShadow: {
+                        'accent-glow': '0 0 20px rgba(0, 194, 255, 0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        html {
+            background-color: #0A0A0B;
+            color: #F2F2F0;
+            scroll-behavior: smooth;
+            cursor: none;
+        }
+
+        @media (max-width: 768px) {
+            html {
+                cursor: auto;
+            }
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+
+        /* One-shot scroll animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+
+        /* Custom selection color */
+        ::selection {
+            background-color: #00C2FF;
+            color: #0A0A0B;
+        }
+
+        /* Subtle grid background */
+        .bg-grid {
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center top;
+        }
+
+        .glass-panel {
+            background: rgba(22, 24, 29, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-accent selection:text-[#0A0A0B]">
+    <!-- Custom Cursor -->
+    <div id="custom-cursor" class="hidden md:block fixed w-8 h-8 border-2 border-accent/50 rounded-full pointer-events-none z-50 transition-all duration-150 ease-out -translate-x-1/2 -translate-y-1/2"></div>
+    <div id="custom-cursor-dot" class="hidden md:block fixed w-2 h-2 bg-accent rounded-full pointer-events-none z-[51] transition-all duration-75 ease-out -translate-x-1/2 -translate-y-1/2"></div>
+
+    <!-- Project Modal Overlay -->
+    <div id="project-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 md:p-6 opacity-0 transition-opacity duration-300">
+        <div class="absolute inset-0 bg-[#0A0A0B]/90 backdrop-blur-sm" id="modal-bg"></div>
+        <div class="relative bg-surface border border-divider rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl transform scale-95 transition-transform duration-300 flex flex-col" id="modal-content">
+            <button class="absolute top-4 right-4 text-textSecondary hover:text-textPrimary z-20 bg-surface/50 p-2 rounded-full backdrop-blur-md" id="close-modal">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <div class="w-full h-64 md:h-96 relative bg-divider">
+                <img id="modal-img" src="" class="w-full h-full object-cover object-top" />
+                <div class="absolute inset-0 bg-gradient-to-t from-surface to-transparent"></div>
+            </div>
+            <div class="p-8 md:p-12 -mt-20 relative z-10">
+                <div class="flex gap-2 mb-4" id="modal-tags"></div>
+                <h2 class="text-4xl md:text-5xl font-bold mb-6 text-textPrimary" id="modal-title"></h2>
+                <div class="text-textSecondary text-lg font-light leading-relaxed space-y-4" id="modal-desc"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fixed background grid -->
+    <div class="fixed inset-0 bg-grid pointer-events-none z-[-1]"></div>
+    
+    <!-- Top Gradient Glow -->
+    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-accent/5 blur-[120px] rounded-full pointer-events-none z-[-1]"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-40 glass-panel border-b-0 border-divider">
+        <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="font-mono text-sm tracking-widest text-textPrimary uppercase">
+                <span class="text-accent">&lt;</span>Abhishek T M<span class="text-accent">/&gt;</span>
+            </div>
+            <div class="flex items-center gap-6 text-sm font-mono hidden md:flex">
+                <a href="#work" class="text-textSecondary hover:text-accent transition-colors">Work</a>
+                <a href="#about" class="text-textSecondary hover:text-accent transition-colors">About</a>
+                <a href="https://github.com/abhishektm055-cyber" target="_blank" rel="noopener noreferrer" class="text-textSecondary hover:text-accent transition-colors">GitHub</a>
+                <a href="https://linkedin.com/in/abhishek-tm055" target="_blank" rel="noopener noreferrer" class="text-textSecondary hover:text-accent transition-colors">LinkedIn</a>
+                <a href="#contact" class="px-4 py-2 bg-accent/10 text-accent border border-accent/20 rounded hover:bg-accent hover:text-base hover:shadow-accent-glow transition-all duration-300">
+                    Get Resume
+                </a>
+            </div>
+            <!-- Mobile Resume Button -->
+            <div class="md:hidden">
+                <a href="#contact" class="text-xs font-mono px-3 py-1.5 bg-accent/10 text-accent border border-accent/20 rounded hover:bg-accent hover:text-base transition-colors">Resume</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow pt-32">
+        <!-- Hero Section -->
+        <section class="relative w-full max-w-6xl mx-auto px-6 pt-20 pb-32 flex flex-col justify-center min-h-[75vh]">
+            <canvas id="network-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-[-1] opacity-50"></canvas>
+            <div class="reveal relative z-10">
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/20 rounded-full font-mono text-accent text-xs mb-8 tracking-widest uppercase">
+                    <span class="w-1.5 h-1.5 rounded-full bg-accent relative"><span class="absolute inset-0 rounded-full bg-accent opacity-50"></span></span>
+                    Available for 2027 Grad Roles
+                </div>
+                <h1 class="text-6xl md:text-8xl font-bold tracking-tight mb-8 leading-[1.1]">
+                    <span id="typewriter-first"></span><br/>
+                    <span id="typewriter-last" class="text-textSecondary"></span><span class="animate-pulse text-accent">_</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-textSecondary max-w-2xl mb-12 font-light leading-relaxed">
+                    2x Robotics Champion. Bridging hardware integration, full-stack development, and applied blockchain security.
+                </p>
+                <div class="flex flex-wrap items-center gap-4">
+                    <a href="resume.pdf" download="Abhishek_TM_Resume.pdf" class="px-8 py-4 bg-accent text-base font-semibold rounded hover:bg-accent/90 hover:shadow-accent-glow transition-all duration-300 flex items-center gap-2">
+                        Download Resume
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    </a>
+                    <a href="#contact" class="px-8 py-4 border border-divider text-textPrimary rounded hover:bg-surface transition-colors duration-300 font-medium">
+                        Contact Me
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="max-w-6xl mx-auto px-6 py-24 border-t border-divider/50">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
+                <div class="md:col-span-5 reveal">
+                    <!-- Placeholder for campus photo -->
+                    <div class="aspect-[4/5] bg-surface rounded-lg relative overflow-hidden border border-divider group">
+                        <img src="assets/profile.jpg" alt="Abhishek T M" class="w-full h-full object-cover opacity-60 grayscale group-hover:grayscale-0 transition-all duration-700 object-top" />
+                        <div class="absolute inset-0 bg-accent/10 mix-blend-overlay group-hover:opacity-0 transition-opacity duration-700"></div>
+                        <div class="absolute bottom-4 left-4 right-4 p-4 glass-panel rounded backdrop-blur-md">
+                            <p class="font-mono text-xs text-textSecondary flex items-center justify-between">
+                                <span>CIT, Gubbi</span>
+                                <span class="text-accent">ISE '27</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="md:col-span-7 reveal reveal-delay-1">
+                    <h2 class="text-3xl font-bold mb-6">Builder & Leader.</h2>
+                    <div class="space-y-6 text-textSecondary text-lg leading-relaxed font-light">
+                        <p>
+                            I'm an Information Science and Engineering student driven by a passion for building systems that bridge the physical and digital worlds. 
+                        </p>
+                        <p>
+                            I thrive at the intersection of technical execution and leadership. I've authored an IEEE-submitted blockchain research paper, co-founded student technical initiatives like MATRIX Robotics and STEPCRAFT, and orchestrated SkyHack 2.0—a national-level hackathon that drew over 600 registrants.
+                        </p>
+                        <p>
+                            As a two-time robotics competition champion (Magnovite 2025, Enigma 2026), my hands-on experience spans across IoT hardware integration, full-stack web applications, and decentralized security architectures.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Work Section -->
+        <section id="work" class="max-w-6xl mx-auto px-6 py-24 border-t border-divider/50">
+            <div class="mb-16 reveal">
+                <h2 class="text-4xl font-bold mb-4">Featured Work & Leadership</h2>
+                <p class="text-textSecondary font-mono text-sm uppercase tracking-wider">Select Projects & Initiatives</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Project 1: Decentralized Voting -->
+                <a href="#" class="group block bg-surface rounded-lg border border-divider hover:border-accent/50 hover:bg-surfaceHover transition-all duration-300 reveal overflow-hidden flex flex-col">
+                    <div class="h-48 w-full bg-divider relative overflow-hidden">
+                        <img src="assets/voting-conference.png" alt="Decentralized Voting System Conference" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <div class="absolute inset-0 bg-accent/10 mix-blend-overlay group-hover:opacity-0 transition-opacity duration-500"></div>
+                    </div>
+                    <div class="p-8 flex-grow flex flex-col">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="font-mono text-xs text-textSecondary px-3 py-1 bg-[#0A0A0B] rounded-full border border-divider">IEEE Submitted</span>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3 group-hover:text-accent transition-colors">Decentralized Voting System</h3>
+                        <p class="text-textSecondary mb-6 font-light">
+                            Developed a highly secure online voting platform utilizing the Ethereum blockchain and two-step verification to ensure transparent data integrity. Authored and presented a comprehensive research paper detailing the architecture.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-auto">
+                            <span class="text-xs font-mono text-textPrimary/70 bg-[#0A0A0B] px-2 py-1 rounded">Ethereum</span>
+                            <span class="text-xs font-mono text-textPrimary/70 bg-[#0A0A0B] px-2 py-1 rounded">Blockchain Security</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Project 2: SkyHack 2.0 -->
+                <a href="#" class="group block bg-surface rounded-lg border border-divider hover:border-accent/50 hover:bg-surfaceHover transition-all duration-300 reveal reveal-delay-1 overflow-hidden flex flex-col">
+                    <div class="h-48 w-full bg-divider relative overflow-hidden">
+                        <img src="assets/event-group.png" alt="SkyHack 2.0 Organizer" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" />
+                        <div class="absolute inset-0 bg-accent/10 mix-blend-overlay group-hover:opacity-0 transition-opacity duration-500"></div>
+                    </div>
+                    <div class="p-8 flex-grow flex flex-col">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="font-mono text-xs text-textSecondary px-3 py-1 bg-[#0A0A0B] rounded-full border border-divider">600+ Registrants</span>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3 group-hover:text-accent transition-colors">SkyHack 2.0 (Core Organizer)</h3>
+                        <p class="text-textSecondary mb-6 font-light">
+                            Orchestrated a national-level hackathon. Conceptualized and produced detailed promotional video content to boost registration, resulting in a massive offline finals event hosting 65 teams and 300+ attendees.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-auto">
+                            <span class="text-xs font-mono text-textPrimary/70 bg-[#0A0A0B] px-2 py-1 rounded">Event Management</span>
+                            <span class="text-xs font-mono text-textPrimary/70 bg-[#0A0A0B] px-2 py-1 rounded">Video Editing</span>
+                            <span class="text-xs font-mono text-textPrimary/70 bg-[#0A0A0B] px-2 py-1 rounded">Leadership</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Project 3: Smart Farm System -->
+                <a href="#" class="group block bg-surface rounded-lg border border-divider hover:border-accent/50 hover:bg-surfaceHover transition-all duration-300 reveal overflow-hidden flex flex-col">
+                    <div class="h-48 w-full bg-divider relative overflow-hidden">
+                        <img src="assets/smartfarm.png" alt="Smart Farm System Dashboard" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 object-top" />
+                        <div class="absolute inset-0 bg-accent/10 mix-blend-overlay group-hover:opacity-0 transition-opacity duration-500"></div>
+                    </div>
+                    <div class="p-8 flex-grow flex flex-col">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="font-mono text-xs text-textSecondary px-3 py-1 bg-[#0A0A0B] rounded-full border border-divider">Ongoing</span>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3 group-hover:text-accent transition-colors">Smart Farm System</h3>
+                        <p class="text-textSecondary mb-6 font-light">
+                            Designing an intelligent, physical agricultural monitoring system integrating PoE switches, flow sensors, and soil moisture sensors. Aggregating real-time data into a mobile app for automated crop management.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-auto">
+                            <span class="text-xs font-mono text-textPrimary/70 bg-[#0A0A0B] px-2 py-1 rounded">IoT Hardware</span>
+                            <span class="text-xs font-mono text-textPrimary/70 bg-[#0A0A0B] px-2 py-1 rounded">App Integration</span>
+                            <span class="text-xs font-mono text-textPrimary/70 bg-[#0A0A0B] px-2 py-1 rounded">Automation</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Project 4: E-Commerce for Ed Kits -->
+                <a href="https://stepcraft-kits.vercel.app/#home" class="group block bg-surface rounded-lg border border-divider hover:border-accent/50 hover:bg-surfaceHover transition-all duration-300 reveal reveal-delay-1 overflow-hidden flex flex-col">
+                    <div class="h-48 w-full bg-divider relative overflow-hidden">
+                        <img src="assets/stepart.png" alt="STEPART E-Commerce" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 object-top" />
+                        <div class="absolute inset-0 bg-accent/10 mix-blend-overlay group-hover:opacity-0 transition-opacity duration-500"></div>
+                    </div>
+                    <div class="p-8 flex-grow flex flex-col">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="font-mono text-xs text-textSecondary px-3 py-1 bg-[#0A0A0B] rounded-full border border-divider">Full-Stack</span>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3 group-hover:text-accent transition-colors">E-Commerce for Edu Kits</h3>
+                        <p class="text-textSecondary mb-6 font-light">
+                            Built and deployed a full-stack e-commerce platform enabling customers to browse, order, and track custom educational engineering kits end-to-end. Designed to support hardware learning initiatives.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-auto">
+                            <span class="text-xs font-mono text-textPrimary/70 bg-[#0A0A0B] px-2 py-1 rounded">React</span>
+                            <span class="text-xs font-mono text-textPrimary/70 bg-[#0A0A0B] px-2 py-1 rounded">Node.js</span>
+                            <span class="text-xs font-mono text-textPrimary/70 bg-[#0A0A0B] px-2 py-1 rounded">MongoDB</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Competitive Robotics Section -->
+        <section class="max-w-6xl mx-auto px-6 py-24 border-t border-divider/50">
+            <div class="mb-16 reveal">
+                <h2 class="text-4xl font-bold mb-4">Team MATRIX Achievements</h2>
+                <p class="text-textSecondary font-mono text-sm uppercase tracking-wider">Competitive Robotics</p>
+            </div>
+
+            <div class="space-y-12">
+                <!-- Achievement 1: Magnovite -->
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center reveal">
+                    <div class="md:col-span-5 h-64 bg-surface rounded-lg overflow-hidden border border-divider group">
+                        <img src="assets/magnovite.jpg" alt="Magnovite 2025 at CHRIST University" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    </div>
+                    <div class="md:col-span-7 space-y-4">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <span class="font-mono text-xs text-accent px-3 py-1 bg-accent/10 rounded-full border border-accent/20">Magnovite 2025</span>
+                            <span class="text-sm text-textSecondary font-mono">CHRIST University, Bangalore</span>
+                        </div>
+                        <h3 class="text-2xl font-bold">Double Silver Finish</h3>
+                        <p class="text-textSecondary font-light leading-relaxed">
+                            Secured <strong class="text-textPrimary">2nd Place in the RC Car Challenge</strong> and <strong class="text-textPrimary">2nd Place in Maze Hunter</strong>. Working together under pressure, solving mechanical issues on the fly, and seeing our efforts turn into a podium finish was an incredible experience. A huge shoutout to my teammates for the support throughout the event.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Achievement 2: Innovatex 4.0 -->
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center reveal reveal-delay-1">
+                    <div class="md:col-span-5 md:order-last h-64 bg-surface rounded-lg overflow-hidden border border-divider group">
+                        <img src="assets/innovatex.jpg" alt="Innovatex 4.0 at Presidency University" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    </div>
+                    <div class="md:col-span-7 space-y-4 md:order-first">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <span class="font-mono text-xs text-accent px-3 py-1 bg-accent/10 rounded-full border border-accent/20">Innovatex 4.0</span>
+                            <span class="text-sm text-textSecondary font-mono">Presidency University</span>
+                        </div>
+                        <h3 class="text-2xl font-bold">3rd Place: Servo Strikers</h3>
+                        <p class="text-textSecondary font-light leading-relaxed">
+                            Competed in the International Tech Fest and came back with a podium finish. Beyond the certificate, what I’ll remember most is the experience: learning from international teams, solving problems under pressure, and turning our efforts into something we could proudly present.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Achievement 3: RoboCor '26 -->
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center reveal">
+                    <div class="md:col-span-5 h-64 bg-surface rounded-lg overflow-hidden border border-divider group">
+                        <img src="assets/robocor.jpg" alt="RoboCor 26 at SIT" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    </div>
+                    <div class="md:col-span-7 space-y-4">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <span class="font-mono text-xs text-accent px-3 py-1 bg-accent/10 rounded-full border border-accent/20">RoboCor '26</span>
+                            <span class="text-sm text-textSecondary font-mono">Siddaganga Institute of Technology</span>
+                        </div>
+                        <h3 class="text-2xl font-bold">2nd Place Finish</h3>
+                        <p class="text-textSecondary font-light leading-relaxed">
+                            What started with ideas, teamwork, and a lot of trial and error turned into a massive success. Grateful to my teammates for the collaboration, the countless discussions, and for pushing through every challenge along the way. Every competition teaches you something new.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Achievement 4: Enigma '26 -->
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center reveal reveal-delay-1">
+                    <div class="md:col-span-5 md:order-last h-64 bg-surface rounded-lg overflow-hidden border border-divider group">
+                        <img src="assets/enigma.jpg" alt="Enigma 26 at Malnad Technical Club" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    </div>
+                    <div class="md:col-span-7 space-y-4 md:order-first">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <span class="font-mono text-xs text-accent px-3 py-1 bg-accent/10 rounded-full border border-accent/20">Enigma '26</span>
+                            <span class="text-sm text-textSecondary font-mono">Malnad College of Engineering</span>
+                        </div>
+                        <h3 class="text-2xl font-bold">Robotics Champion (1st Place)</h3>
+                        <p class="text-textSecondary font-light leading-relaxed">
+                            Dominated the robotics circuit at the Malnad Technical Club's flagship event. This victory was a testament to our rigorous preparation, robust hardware design, and relentless teamwork over the years.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section class="max-w-6xl mx-auto px-6 py-24 border-t border-divider/50">
+            <div class="mb-16 reveal">
+                <h2 class="text-4xl font-bold mb-4">Technical Skills</h2>
+                <p class="text-textSecondary font-mono text-sm uppercase tracking-wider">Languages, Tools & Hardware</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Software -->
+                <div class="reveal">
+                    <h3 class="font-mono text-accent mb-6 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                        01. Software & Web
+                    </h3>
+                    <ul class="space-y-4 text-textSecondary">
+                        <li class="flex items-center gap-3">
+                            <div class="w-1.5 h-1.5 bg-accent/50 rounded-full"></div>
+                            Java, Python, C, JavaScript
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <div class="w-1.5 h-1.5 bg-accent/50 rounded-full"></div>
+                            React, Node.js, MongoDB
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <div class="w-1.5 h-1.5 bg-accent/50 rounded-full"></div>
+                            Git Version Control
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <div class="w-1.5 h-1.5 bg-accent/50 rounded-full"></div>
+                            Cloud Computing (NPTEL)
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Hardware & IoT -->
+                <div class="reveal reveal-delay-1">
+                    <h3 class="font-mono text-accent mb-6 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        02. Hardware & IoT
+                    </h3>
+                    <ul class="space-y-4 text-textSecondary">
+                        <li class="flex items-center gap-3">
+                            <div class="w-1.5 h-1.5 bg-accent/50 rounded-full"></div>
+                            PoE Switches & Automation
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <div class="w-1.5 h-1.5 bg-accent/50 rounded-full"></div>
+                            Flow & Soil Moisture Sensors
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <div class="w-1.5 h-1.5 bg-accent/50 rounded-full"></div>
+                            NPK Sensors
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <div class="w-1.5 h-1.5 bg-accent/50 rounded-full"></div>
+                            Fusion 360, Ansys
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Specialties -->
+                <div class="reveal reveal-delay-2">
+                    <h3 class="font-mono text-accent mb-6 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                        03. Tools & Specialties
+                    </h3>
+                    <ul class="space-y-4 text-textSecondary">
+                        <li class="flex items-center gap-3">
+                            <div class="w-1.5 h-1.5 bg-accent/50 rounded-full shrink-0"></div>
+                            <span class="text-textPrimary font-medium">2x Robotics Champion</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <div class="w-1.5 h-1.5 bg-accent/50 rounded-full"></div>
+                            Ethereum Blockchain
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <div class="w-1.5 h-1.5 bg-accent/50 rounded-full"></div>
+                            Video Editing & Canva
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <div class="w-1.5 h-1.5 bg-accent/50 rounded-full"></div>
+                            Team Leadership (MATRIX/STEPCRAFT)
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Terminal Section -->
+        <section class="max-w-4xl mx-auto px-6 py-24 reveal">
+            <div class="mb-12">
+                <h2 class="text-4xl font-bold mb-4 scramble" data-value="System Terminal">System Terminal</h2>
+                <p class="text-textSecondary font-mono text-sm uppercase tracking-wider">Execute commands to learn more</p>
+            </div>
+            <div class="bg-[#050505] border border-divider rounded-lg overflow-hidden font-mono text-sm shadow-2xl">
+                <div class="bg-surface border-b border-divider px-4 py-3 flex items-center gap-2 relative">
+                    <div class="flex gap-2">
+                        <div class="w-3 h-3 rounded-full bg-red-500/80 border border-red-500/50"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500/80 border border-yellow-500/50"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500/80 border border-green-500/50"></div>
+                    </div>
+                    <span class="absolute left-1/2 -translate-x-1/2 text-textSecondary text-xs">guest@abhishek-tm: ~</span>
+                </div>
+                <div class="p-6 h-64 overflow-y-auto cursor-text scrollbar-hide" id="terminal-output" onclick="document.getElementById('terminal-input').focus()">
+                    <div class="text-textSecondary mb-4">Welcome to Abhishek's portfolio terminal.<br/>Type <span class="text-accent">'help'</span> to see available commands.</div>
+                    <div id="terminal-history"></div>
+                    <div class="flex items-center gap-2 mt-2">
+                        <span class="text-accent">guest@portfolio ~$</span>
+                        <input type="text" id="terminal-input" class="flex-1 bg-transparent outline-none border-none text-textPrimary" autocomplete="off" spellcheck="false" autofocus />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final CTA / Contact -->
+        <section id="contact" class="max-w-4xl mx-auto px-6 py-32 text-center reveal">
+            <div class="glass-panel border border-divider rounded-2xl p-12 md:p-20 relative overflow-hidden">
+                <div class="absolute inset-0 bg-accent/5 pointer-events-none"></div>
+                <h2 class="text-4xl md:text-5xl font-bold mb-6 relative z-10">Ready to build?</h2>
+                <p class="text-xl text-textSecondary mb-10 font-light max-w-xl mx-auto relative z-10">
+                    I'm actively looking for opportunities where I can apply my skills in hardware, full-stack dev, and problem-solving.
+                </p>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 relative z-10">
+                    <a href="resume.pdf" download="Abhishek_TM_Resume.pdf" class="w-full sm:w-auto px-8 py-4 bg-accent text-base font-semibold rounded hover:bg-accent/90 hover:shadow-accent-glow transition-all duration-300 flex items-center justify-center gap-2">
+                        Download Full Resume
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    </a>
+                    <button onclick="navigator.clipboard.writeText('abhishektm055@gmail.com'); this.innerText='Email Copied!'; this.classList.add('text-accent', 'border-accent');" class="w-full sm:w-auto px-8 py-4 border border-divider text-textPrimary rounded hover:bg-surface transition-colors duration-300 font-medium cursor-pointer">
+                        abhishektm055@gmail.com
+                    </button>
+                </div>
+                
+                <div class="mt-8 flex justify-center gap-6 relative z-10">
+                    <a href="https://github.com/abhishektm055-cyber" target="_blank" rel="noopener noreferrer" class="text-textSecondary hover:text-accent transition-colors font-mono text-sm">github.com/abhishektm055-cyber</a>
+                    <a href="https://linkedin.com/in/abhishek-tm055" target="_blank" rel="noopener noreferrer" class="text-textSecondary hover:text-accent transition-colors font-mono text-sm">linkedin.com/in/abhishek-tm055</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-divider mt-12 py-8 text-center text-textSecondary text-sm font-mono reveal">
+        <p>© 2027 Abhishek T M. All systems nominal.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Typewriter Effect
+            const firstName = "Abhishek ";
+            const lastName = "T M.";
+            let iFirst = 0;
+            let iLast = 0;
+            const elFirst = document.getElementById('typewriter-first');
+            const elLast = document.getElementById('typewriter-last');
+
+            function typeWriter() {
+                if (iFirst < firstName.length) {
+                    elFirst.innerHTML += firstName.charAt(iFirst);
+                    iFirst++;
+                    setTimeout(typeWriter, 100);
+                } else if (iLast < lastName.length) {
+                    elLast.innerHTML += lastName.charAt(iLast);
+                    iLast++;
+                    setTimeout(typeWriter, 150); // Slower for last name
+                }
+            }
+            setTimeout(typeWriter, 500);
+
+            // Scroll Reveal Logic
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.15
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        // Unobserve after revealing once (no looping)
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.reveal').forEach(el => {
+                observer.observe(el);
+            });
+
+            // Custom Cursor Logic
+            const cursor = document.getElementById('custom-cursor');
+            const cursorDot = document.getElementById('custom-cursor-dot');
+            
+            if (cursor && cursorDot) {
+                document.addEventListener('mousemove', (e) => {
+                    if (window.innerWidth > 768) {
+                        cursor.style.left = e.clientX + 'px';
+                        cursor.style.top = e.clientY + 'px';
+                        cursorDot.style.left = e.clientX + 'px';
+                        cursorDot.style.top = e.clientY + 'px';
+                    }
+                });
+
+                document.querySelectorAll('a, button').forEach(el => {
+                    el.addEventListener('mouseenter', () => {
+                        cursor.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                        cursor.style.backgroundColor = 'rgba(0, 194, 255, 0.1)';
+                    });
+                    el.addEventListener('mouseleave', () => {
+                        cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+                        cursor.style.backgroundColor = 'transparent';
+                    });
+                });
+            }
+
+            // 3D Tilt Effect on Project/Achievement Cards
+            document.querySelectorAll('.group.block, .group.bg-surface').forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    if (window.innerWidth <= 768) return;
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = ((y - centerY) / centerY) * -3; // Max 3 deg
+                    const rotateY = ((x - centerX) / centerX) * 3;
+                    
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.01, 1.01, 1.01)`;
+                    card.style.transition = 'transform 0.1s ease';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+                    card.style.transition = 'transform 0.5s ease';
+                });
+            });
+            // --- 1. Scramble Decode Effect ---
+            const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
+            const addScramble = (selector) => {
+                document.querySelectorAll(selector).forEach(el => {
+                    const originalText = el.innerText;
+                    el.addEventListener('mouseenter', () => {
+                        let iterations = 0;
+                        clearInterval(el.interval);
+                        el.interval = setInterval(() => {
+                            el.innerText = originalText.split("").map((letter, index) => {
+                                if(index < iterations) return originalText[index];
+                                return letters[Math.floor(Math.random() * letters.length)];
+                            }).join("");
+                            if(iterations >= originalText.length) {
+                                clearInterval(el.interval);
+                                el.innerText = originalText;
+                            }
+                            iterations += 1 / 3;
+                        }, 30);
+                    });
+                });
+            };
+            addScramble('.scramble');
+            addScramble('.group h3'); // Project and Achievement titles
+            addScramble('.skills-tag'); // Requires adding .skills-tag to skills
+            addScramble('#skills span');
+
+            // --- 2. Project Deep-Dive Modals ---
+            const modal = document.getElementById('project-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalDesc = document.getElementById('modal-desc');
+            const modalImg = document.getElementById('modal-img');
+            const modalTags = document.getElementById('modal-tags');
+            
+            document.querySelectorAll('#work .group.block').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    if (card.getAttribute('href') && card.getAttribute('href') !== '#') return;
+                    e.preventDefault(); // Prevent link behavior
+                    const img = card.querySelector('img').src;
+                    const title = card.querySelector('h3').innerText;
+                    const desc = card.querySelector('p').innerText;
+                    const tagsHTML = card.querySelector('.flex-wrap').innerHTML;
+                    
+                    modalImg.src = img;
+                    modalTitle.innerText = title;
+                    modalDesc.innerText = desc;
+                    modalTags.innerHTML = tagsHTML;
+                    
+                    modal.classList.remove('hidden');
+                    setTimeout(() => {
+                        modal.classList.remove('opacity-0');
+                        modal.querySelector('#modal-content').classList.remove('scale-95');
+                    }, 10);
+                });
+            });
+
+            if (modal) {
+                const closeModal = () => {
+                    modal.classList.add('opacity-0');
+                    modal.querySelector('#modal-content').classList.add('scale-95');
+                    setTimeout(() => modal.classList.add('hidden'), 300);
+                };
+                document.getElementById('close-modal').addEventListener('click', closeModal);
+                document.getElementById('modal-bg').addEventListener('click', closeModal);
+            }
+
+            // --- 3. Interactive Terminal Section ---
+            const termInput = document.getElementById('terminal-input');
+            const termHistory = document.getElementById('terminal-history');
+            
+            if (termInput) {
+                const commands = {
+                    'help': 'Available commands:<br/>  <span class="text-accent">whoami</span>   - About Abhishek<br/>  <span class="text-accent">skills</span>   - List core technologies<br/>  <span class="text-accent">contact</span>  - Display contact info<br/>  <span class="text-accent">clear</span>    - Clear terminal',
+                    'whoami': 'Abhishek T M.<br/>ISE Student at CIT. 2x Robotics Champion.<br/>Focus: Hardware integration, Full-stack dev, Blockchain security.',
+                    'skills': 'React, Node.js, Python, C++, Solidity, Arduino, ESP32, Firebase, MongoDB.',
+                    'contact': 'Email: abhishektm055@gmail.com<br/>LinkedIn: /in/abhishek-tm055<br/>GitHub: abhishektm055-cyber',
+                };
+                
+                termInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        const cmd = termInput.value.trim().toLowerCase();
+                        termInput.value = '';
+                        let response = `<div class="mb-2"><span class="text-accent">guest@portfolio ~$</span> ${cmd}</div>`;
+                        if (cmd === 'clear') {
+                            termHistory.innerHTML = '';
+                            return;
+                        } else if (cmd === '') {
+                            // nothing
+                        } else if (commands[cmd]) {
+                            response += `<div class="text-textSecondary mb-4">${commands[cmd]}</div>`;
+                        } else {
+                            response += `<div class="text-red-400 mb-4">Command not found: ${cmd}. Type 'help' for available commands.</div>`;
+                        }
+                        termHistory.innerHTML += response;
+                        document.getElementById('terminal-output').scrollTop = document.getElementById('terminal-output').scrollHeight;
+                    }
+                });
+            }
+
+            // --- 4. Interactive Ambient Network (Hero Canvas) ---
+            const canvas = document.getElementById('network-canvas');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                let width = canvas.width = canvas.offsetWidth;
+                let height = canvas.height = canvas.offsetHeight;
+                
+                window.addEventListener('resize', () => {
+                    width = canvas.width = canvas.offsetWidth;
+                    height = canvas.height = canvas.offsetHeight;
+                });
+
+                const particles = [];
+                for(let i=0; i<40; i++) {
+                    particles.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: (Math.random() - 0.5) * 0.5,
+                        size: Math.random() * 2 + 1
+                    });
+                }
+
+                let mouseX = width / 2;
+                let mouseY = height / 2;
+                document.addEventListener('mousemove', (e) => {
+                    if (e.clientY < height + 200) {
+                        mouseX = e.clientX;
+                        mouseY = e.clientY;
+                    }
+                });
+
+                function animateCanvas() {
+                    ctx.clearRect(0, 0, width, height);
+                    particles.forEach(p => {
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        if(p.x < 0 || p.x > width) p.vx *= -1;
+                        if(p.y < 0 || p.y > height) p.vy *= -1;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(0, 194, 255, 0.3)';
+                        ctx.fill();
+                    });
+                    for(let i=0; i<particles.length; i++) {
+                        const dxMouse = particles[i].x - mouseX;
+                        const dyMouse = particles[i].y - mouseY;
+                        const distMouse = Math.sqrt(dxMouse*dxMouse + dyMouse*dyMouse);
+                        if(distMouse < 200 && window.innerWidth > 768) {
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(mouseX, mouseY);
+                            ctx.strokeStyle = `rgba(0, 194, 255, ${0.2 - distMouse/1000})`;
+                            ctx.stroke();
+                        }
+                        for(let j=i+1; j<particles.length; j++) {
+                            const dx = particles[i].x - particles[j].x;
+                            const dy = particles[i].y - particles[j].y;
+                            const dist = Math.sqrt(dx*dx + dy*dy);
+                            if(dist < 120) {
+                                ctx.beginPath();
+                                ctx.moveTo(particles[i].x, particles[i].y);
+                                ctx.lineTo(particles[j].x, particles[j].y);
+                                ctx.strokeStyle = `rgba(0, 194, 255, ${0.15 - dist/800})`;
+                                ctx.stroke();
+                            }
+                        }
+                    }
+                    requestAnimationFrame(animateCanvas);
+                }
+                animateCanvas();
+            }
+        });
+    </script>
+</body>
+</html>
